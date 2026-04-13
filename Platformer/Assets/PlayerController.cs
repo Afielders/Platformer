@@ -1,6 +1,5 @@
 using UnityEngine;
 using System.Collections;
-using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviour
 {
@@ -11,11 +10,15 @@ public class PlayerController : MonoBehaviour
     private Rigidbody2D rb;
 
     public float max_speed = 5f;
+
     private Vector2 velocity;
+
     public float acceleration = 1.5f;
-    public float fritction = 0.75f;
+
+    public float friction = 0.75f;
 
     public float gravity = 0.5f;
+
     public float max_fall_speed = 9.8f;
 
     public LayerMask mask;
@@ -60,19 +63,18 @@ public class PlayerController : MonoBehaviour
     private void FixedUpdate()
     {
 
-        //Accelerate the player.
+        //Speed the player up by adding acceleration.
         velocity.x += acceleration * direction.x;
-        //Cap the speed to max_speed.
+        //Cap the player's speed by clamping its x component of the velocity.
         velocity.x = Mathf.Clamp(velocity.x, -max_speed, max_speed);
 
-        //Friction
+        //If the player is not holding down the A/D key...
         if(direction.x == 0)
         {
-            velocity.x = Mathf.MoveTowards(velocity.x, 0, fritction);
+            //Apply friction by moving the veocity.x to zero.
+            velocity.x = Mathf.MoveTowards(velocity.x, 0, friction);
         }
 
-        //Apply gravity to velocity.
-        velocity.y -= gravity;
 
         //Preform the raycasts.
         left_ground_check = Physics2D.Raycast(rb.position, Vector2.down, 1, mask);
