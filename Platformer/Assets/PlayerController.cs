@@ -21,9 +21,14 @@ public class PlayerController : MonoBehaviour
 
     public float max_fall_speed = 9.8f;
 
+    //Ground Checking
     public LayerMask mask;
     private RaycastHit2D left_ground_check;
     private RaycastHit2D right_ground_check;
+
+    //Jumping
+    private bool jump_check;
+    public float jump_force = 15f;
 
 
 
@@ -54,10 +59,19 @@ public class PlayerController : MonoBehaviour
             direction.x = 0;
         }
 
-       
-
+      
         //Normalize the directuin so the player doesn't move quicker along the diaginals.
         direction = direction.normalized;
+
+        //Check if the user pressed the jump key.
+        if (Input.GetKey(KeyCode.Space))
+        {
+            jump_check = true;
+        }
+        else 
+        {
+            jump_check = false;
+        }
     }
 
     private void FixedUpdate()
@@ -76,26 +90,36 @@ public class PlayerController : MonoBehaviour
         }
 
 
-        //Preform the raycasts.
-        left_ground_check = Physics2D.Raycast(rb.position, Vector2.down, 1, mask);
-        right_ground_check = Physics2D.Raycast(rb.position, Vector2.down, 1, mask);
+        bool is_grounded = false;
+        if (velocity.y <0) //If we are falling...
+        {
+            //Preform the ground raycasts.
+            left_ground_check = Physics2D.Raycast(rb.position - new Vector2(0.5f, 0), Vector2.down, 1, mask);
+            right_ground_check = Physics2D.Raycast(rb.position + new Vector2(0.5f, 0), Vector2.down, 1, mask);
+            is_grounded = (left_ground_check || right_ground_check);
+        }
 
         float ground_offset = 0f;
-
-        //if the player is touching the gorund...
-        if(left_ground_check || right_ground_check)
+        if(is_grounded)  //if the player is touching the ground...
         {
-            //Disable velocity.
-            velocity.y = 0;
-
+            
             //Find the amount to offset the player by.
             ground_offset = Mathf.Max(left_ground_check.distance, right_ground_check.distance) - 0.5f;
+
+            //Disable any y velocity.
+            velocity.y = 0;
+
+            //Make the player jump since they pressed the spacebar.
+            if(jump_check)
+            {
+                velocity.y = jump_force;
+                is_grounded = false;
+            }
         }
         else //Otherwise the player is in the air. So...
         {
-            //Apply gravity to velocity.
+            //Apply gravity.
             velocity.y -= gravity;
-
             //Cap the fall speed.
             velocity.y = Mathf.Max(velocity.y, -max_fall_speed);  
         }
@@ -110,8 +134,8 @@ public class PlayerController : MonoBehaviour
     {
         //Visualize the ground check ray.   
         Gizmos.color = Color.red;
-        Gizmos.DrawRay(GetComponent<Rigidbody2D>().position + new Vector2(-0.5f, 0), Vector2.down);
-        Gizmos.DrawRay(GetComponent<Rigidbody2D>().position + new Vector2(0.5f, 0), Vector2.down);
+        Gizmos.DrawRay(GetComponent<Rigidbody2D>().position + new Vector2(0.5f, 0), Vector2.down);//Right Ray
+        Gizmos.DrawRay(GetComponent<Rigidbody2D>().position - new Vector2(0.5f, 0), Vector2.down);//Left Ray
 
     }
    
