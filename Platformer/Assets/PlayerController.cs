@@ -30,7 +30,10 @@ public class PlayerController : MonoBehaviour
     private bool jump_check;
     public float jump_force = 15f;
 
-
+    //Attacking
+    public LayerMask attackmask;
+    private bool attack_check;
+    private RaycastHit2D right_attack_check;
 
 
     // Start is called once before the first execution of Update after the MonoBehaviour is created
@@ -59,7 +62,7 @@ public class PlayerController : MonoBehaviour
             direction.x = 0;
         }
 
-      
+
         //Normalize the directuin so the player doesn't move quicker along the diaginals.
         direction = direction.normalized;
 
@@ -68,14 +71,27 @@ public class PlayerController : MonoBehaviour
         {
             jump_check = true;
         }
-        else 
+        else
         {
             jump_check = false;
         }
+
+
+        
     }
 
     private void FixedUpdate()
     {
+
+        //Check if the user pressed the attack key.
+        if (Input.GetKeyDown(KeyCode.KeypadEnter))
+        {
+            attack_check = true;
+        }
+        else
+        {
+            attack_check = false;
+        }
 
         //Speed the player up by adding acceleration.
         velocity.x += acceleration * direction.x;
@@ -115,6 +131,22 @@ public class PlayerController : MonoBehaviour
                 velocity.y = jump_force;
                 is_grounded = false;
             }
+            //Make the player attack since they pressed the Enter.
+            if (attack_check)
+            {
+                
+                //Visualize the attack check ray.   
+                
+                right_attack_check = Physics2D.Raycast(rb.position + new Vector2(0, 0), Vector2.right, 1, attackmask);
+                Debug.Log("Atttack True");
+                if (right_attack_check)
+                {
+                    Debug.Log("Attack Hit");
+                }
+
+            }
+
+
         }
         else //Otherwise the player is in the air. So...
         {
@@ -137,6 +169,12 @@ public class PlayerController : MonoBehaviour
         Gizmos.DrawRay(GetComponent<Rigidbody2D>().position + new Vector2(0.5f, 0), Vector2.down);//Right Ray
         Gizmos.DrawRay(GetComponent<Rigidbody2D>().position - new Vector2(0.5f, 0), Vector2.down);//Left Ray
 
+        if(attack_check)
+        {
+            Gizmos.color = Color.blue;
+            Gizmos.DrawRay(GetComponent<Rigidbody2D>().position + new Vector2(0, 0), Vector2.right);//Right Ray
+        }
+        
     }
    
 
