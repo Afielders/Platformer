@@ -135,13 +135,19 @@ public class PlayerController : MonoBehaviour
             if (attack_check)
             {
                 
-                //Visualize the attack check ray.   
-                
+               
+                // Do attack raycast hit detection
                 right_attack_check = Physics2D.Raycast(rb.position + new Vector2(0, 0), Vector2.right, 1, attackmask);
                 Debug.Log("Atttack True");
                 if (right_attack_check)
                 {
                     Debug.Log("Attack Hit");
+
+                    right_attack_check.collider.gameObject.GetComponent<Enemy>().enemy_health -= 1;
+                    Debug.Log(right_attack_check.collider.gameObject.GetComponent<Enemy>().enemy_health);
+
+
+
                 }
 
             }
@@ -171,6 +177,7 @@ public class PlayerController : MonoBehaviour
 
         if(attack_check)
         {
+            //Visualize the attack check ray.   
             Gizmos.color = Color.blue;
             Gizmos.DrawRay(GetComponent<Rigidbody2D>().position + new Vector2(0, 0), Vector2.right);//Right Ray
         }
